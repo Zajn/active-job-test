@@ -1,24 +1,20 @@
-# README
+# Steps to reproduce
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+1. Check out repository and run `bundle`.
+2. Run the database migrations
 
-Things you may want to cover:
+## Demonstrating the per-job customizations are ignored
 
-* Ruby version
+1. Comment out `lib/active_job/queue_adapters/delayed_job_adapter.rb`
+2. Start `delayed_job` with `bundle exec rake jobs:work`
+3. Start a console with `rails console`
+4. Trigger the mailer with `TestMailer.test.deliver_later`
+5. See that the job is enqueued and run successfully, despite the `MailDeliveryJob` having a `max_run_time` of 1 second
 
-* System dependencies
+## Demonstrating the desired behavior with the monkey patch
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. Uncomment the monkey patch if commented out from above
+2. Start `delayed_job` with `bundle exec rake jobs:work`
+3. Start a console with `rails console`
+4. Trigger the mailer with `TestMailer.test.deliver_later`
+5. See that the job is enqueued but fails to run, because the execution time is longer than the permitted `max_run_time` ddeclared in `MailDeliveryJob`.
